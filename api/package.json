@@ -2,10 +2,15 @@
   "name": "api",
   "version": "1.0.0",
   "type": "module",
-  "main": "dist/server.js",
+  "main": "dist/src/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc"
+    "start": "node dist/src/server.js",
+    "build": "tsc",
+    "typecheck": "tsc --project tsconfig.typecheck.json",
+    "lint": "eslint src test prisma/seed.ts prisma.config.ts",
+    "test": "tsx --test test/auth.test.ts test/jwt.test.ts",
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^6.0.0",
@@ -25,6 +30,9 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.20.5",
     "@types/pg": "^8.11.10",
+    "@typescript-eslint/eslint-plugin": "^8.71.1",
+    "@typescript-eslint/parser": "^8.71.1",
+    "eslint": "^9.39.5",
     "prisma": "^6.0.0",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3"
