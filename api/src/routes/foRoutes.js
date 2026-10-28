@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { listFOs, getFOById, getFOsOfStudent, createNewFO } from "../controllers/foController.js";
+import { listFOs, getFOById, getFOsOfStudent, createNewFO, judgeFO } from "../controllers/foController.js";
 
 const router = Router();
 
@@ -8,5 +8,7 @@ router.get("/:id", getFOById);
 router.get("/student/:studentId", getFOsOfStudent);
 
 router.post("/", createNewFO);
+
+router.patch("/:id", judgeFO);
 
 export default router;

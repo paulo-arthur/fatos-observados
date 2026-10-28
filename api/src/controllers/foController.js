@@ -79,3 +79,47 @@ export const createNewFO = async (req, res) => {
         return res.status(500).json({ error: "An error has occurred." });
     }
 };
+
+export const judgeFO = async (req, res) => {
+    const { id } = req.params;
+
+    if (isNaN(id) || Number(id) <= 0) {
+        return res.status(400).json({ error: "Invalid FO ID. Must be a positive number." });
+    }
+
+    try {
+        const checkQuery = `SELECT foi_julgado FROM fos WHERE id = $1;`;
+        const checkResult = await pool.query(checkQuery, [id]);
+
+        if (checkResult.rows.length === 0) {
+            return res.status(404).json({ error: "FO not found." });
+        }
+
+        if (checkResult.rows[0].foi_julgado) {
+            return res.status(409).json({ error: "This FO has already been judged." });
+        }
+
+        const updateQuery = `
+            UPDATE fos
+            SET foi_julgado = true
+            WHERE id = $1
+            RETURNING *;
+        `;
+        const result = await pool.query(updateQuery, [id]);
+
+        return res.status(200).json({
+            message: "FO marked as judged successfully.",
+            fo: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error("Error judging FO:", error);
+
+        // PostgreSQL error code '22P02' (invalid text representation for integer)
+        if (error.code === "22P02" || error.code === "22003") {
+            return res.status(400).json({ error: "Invalid FO ID format." });
+        }
+
+        return res.status(500).json({ error: "An error has occurred." });
+    }
+};

@@ -66,3 +66,44 @@ export const createNewInstructor = async (req, res) => {
         return res.status(500).json({ error: "An error has occurred." });
     }
 };
+
+export const toggleInstructorState = async (req, res) => {
+    const { id } = req.params;
+
+    if (isNaN(id) || Number(id) <= 0) {
+        return res.status(400).json({ error: "Invalid Instructor ID. Must be a positive number." });
+    }
+
+    try {
+        const query = `
+            UPDATE instrutores
+            SET ativo = NOT ativo
+            WHERE id = $1
+            RETURNING id, nome, posto, email, ativo;
+        `;
+        const result = await pool.query(query, [id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Instructor not found." });
+        }
+
+        const updatedInstructor = result.rows[0];
+        const statusMessage = updatedInstructor.ativo 
+            ? "Instructor activated successfully." 
+            : "Instructor deactivated successfully.";
+
+        return res.status(200).json({
+            message: statusMessage,
+            instructor: updatedInstructor
+        });
+
+    } catch (error) {
+        console.error("Error toggling instructor status:", error);
+
+        if (error.code === "22P02" || error.code === "22003") {
+            return res.status(400).json({ error: "Invalid Instructor ID format." });
+        }
+
+        return res.status(500).json({ error: "An error has occurred." });
+    }
+};
