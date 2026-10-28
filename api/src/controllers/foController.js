@@ -15,7 +15,6 @@ export const getFOById = async (req, res) => {
     const id = req.params.id;
 
     try {
-        //TODO: select only the necessary field of the JOIN due to security reasons.
         //TODO: fix column "nome" supression.
         if (isNaN(id) || Number(id) <= 0) {
             return res.status(400).json({ error: "Invalid FO ID. Must be a positive number." });
@@ -37,9 +36,15 @@ export const getFOById = async (req, res) => {
 }
 
 export const getFOsOfStudent = async (req, res) => {
+    const studentId = req.params.studentId;
     try {
-        //TODO: select only the necessary field of the JOIN due to security reasons.
-        const result = await pool.query(`SELECT * FROM fos WHERE alvo_id = ${req.params.studentId}`);
+        const query = `
+                SELECT descricao, foi_julgado, data, instrutores.nome, instrutores.posto
+                FROM fos
+                FULL JOIN instrutores ON fos.autor_id = instrutores.id 
+                WHERE alvo_id = $1`;
+
+        const result = await pool.query(query, [studentId]);
         return res.status(200).json(result.rows);
     } catch (error) {
         console.log(error);
