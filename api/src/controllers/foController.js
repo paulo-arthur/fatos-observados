@@ -12,16 +12,23 @@ export const listFOs = async (req, res) => {
 }
 
 export const getFOById = async (req, res) => {
+    const id = req.params.id;
+
     try {
         //TODO: select only the necessary field of the JOIN due to security reasons.
         //TODO: fix column "nome" supression.
+        if (isNaN(id) || Number(id) <= 0) {
+            return res.status(400).json({ error: "Invalid FO ID. Must be a positive number." });
+        }
+
         const query = `
-                SELECT * 
+                SELECT descricao, foi_julgado, data, instrutores.nome, instrutores.posto, alunos.nome, alunos.numero 
                 FROM fos 
                 FULL JOIN alunos ON fos.alvo_id = alunos.id 
                 FULL JOIN instrutores ON fos.autor_id = instrutores.id 
                 WHERE fos.id = $1`;
-        const result = await pool.query(query, [req.params.id]);
+        const result = await pool.query(query, [id]);
+
         return res.status(200).json(result.rows);
     } catch (error) {
         console.log(error);
