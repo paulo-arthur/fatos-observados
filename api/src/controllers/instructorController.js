@@ -3,8 +3,11 @@ import { sanitizeNewInstructor } from "../utils/sanitizers.js";
 
 export const listInstructors = async (req, res) => {
     try {
-        //TODO: select only the necessary field of the JOIN due to security reasons.
-        const result = await pool.query(`SELECT * FROM instrutores ORDER BY posto, nome`);
+        const query = `
+            SELECT id, nome, posto, email, ativo 
+            FROM instrutores 
+            ORDER BY posto, nome`;
+        const result = await pool.query(query);
         return res.status(200).json(result.rows);
     } catch (error) {
         console.log(error);
@@ -14,8 +17,17 @@ export const listInstructors = async (req, res) => {
 
 export const getInstructorById = async (req, res) => {
     try {
-        //TODO: select only the necessary field of the JOIN due to security reasons.
-        const result = await pool.query(`SELECT * FROM instrutores WHERE id = ${req.params.id}`);
+        const id = req.params.id;
+
+        if (isNaN(id) || Number(id) <= 0) {
+            return res.status(400).json({ error: "Invalid Instructor ID. Must be a positive number." });
+        }
+
+        const query = `
+            SELECT nome, posto, email, ativo
+            FROM instrutores 
+            WHERE id = $1`;
+        const result = await pool.query(query, [id]);
         return res.status(200).json(result.rows);
     } catch (error) {
         console.log(error);
@@ -30,7 +42,6 @@ export const createNewInstructor = async (req, res) => {
         const testedFields = sanitizeNewInstructor(name, rank, email, password);
 
         if (testedFields.isValid) {
-            // RETURNING excludes 'senha' to avoid exposing the hash/password in response
             const query = `
                 INSERT INTO instrutores (nome, posto, email, senha_hash) 
                 VALUES ($1, $2, $3, $4) 
