@@ -2,8 +2,14 @@ import { pool } from  "../db.js";
 import { sanitizeNewStudent } from "../utils/sanitizers.js";
 
 export const listStudents = async (req, res) => {
+
+    const query = `
+            SELECT *
+            FROM alunos 
+            ORDER BY numero;`;
+
     try {
-        const result = await pool.query("SELECT * FROM alunos ORDER BY numero;");
+        const result = await pool.query(query);
         return res.status(200).json(result.rows);
     } catch (error) {
         console.log(error);
@@ -12,8 +18,13 @@ export const listStudents = async (req, res) => {
 }
 
 export const getStudentById = async (req, res) => {
+    const id = req.params.id;
+    const query = `
+            SELECT *
+            FROM alunos
+            WHERE id = $1;`;
     try {
-        const result = await pool.query(`SELECT * FROM alunos WHERE id = $1;`, [req.params.id]);
+        const result = await pool.query(query, [id]);
         
         if ( result.rows.length != 0 ) {
             return res.status(200).json(result.rows[0]);
@@ -31,8 +42,13 @@ export const createNewStudent = async (req, res) => {
     try {
         const testedFields = sanitizeNewStudent(name, number, email);
         if (testedFields.isValid) {
-            console.log(testedFields)
-            const result = await pool.query(`INSERT INTO alunos (nome, numero, email) VALUES ($1, $2, $3)`, [testedFields.name, testedFields.number, testedFields.email]);
+
+            const query = `
+                    INSERT INTO alunos 
+                    (nome, numero, email) 
+                    VALUES 
+                    ($1, $2, $3)`;
+            const result = await pool.query(query, [testedFields.name, testedFields.number, testedFields.email]);
             return res.status(201).json(testedFields);
         } else {
             return res.status(400).json(testedFields);
