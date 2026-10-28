@@ -24,7 +24,7 @@ export const getFOById = async (req, res) => {
 export const getFOsOfStudent = async (req, res) => {
     try {
         //TODO: select only the necessary field of the JOIN due to security reasons.
-        const result = await pool.query(`SELECT * FROM fos WHERE alvo_id = ${req.params.alunoId}`);
+        const result = await pool.query(`SELECT * FROM fos WHERE alvo_id = ${req.params.studentId}`);
         return res.status(200).json(result.rows);
     } catch (error) {
         console.log(error);
