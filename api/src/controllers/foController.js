@@ -15,12 +15,13 @@ export const getFOById = async (req, res) => {
     try {
         //TODO: select only the necessary field of the JOIN due to security reasons.
         //TODO: fix column "nome" supression.
-        const result = await pool
-        .query(`SELECT * 
+        const query = `
+                SELECT * 
                 FROM fos 
                 FULL JOIN alunos ON fos.alvo_id = alunos.id 
                 FULL JOIN instrutores ON fos.autor_id = instrutores.id 
-                WHERE fos.id = ${req.params.id}`);
+                WHERE fos.id = $1`;
+        const result = await pool.query(query, [req.params.id]);
         return res.status(200).json(result.rows);
     } catch (error) {
         console.log(error);
