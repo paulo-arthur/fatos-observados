@@ -40,21 +40,44 @@ export const sanitizeNewStudent = (name, number, email) => {
   res.email = email;
 
   return res;
+}
 
-  /*} catch (error) {
-    // 7. Mapeamento de erros conhecidos do PostgreSQL
-    // Código "23505" = unique_violation (E-mail ou Número duplicado)
-    if (error.code === "23505") {
-      if (error.constraint?.includes("email")) {
-        return res.status(409).json({ erro: "Este e-mail já está cadastrado." });
-      }
-      if (error.constraint?.includes("number")) {
-        return res.status(409).json({ erro: "Este número de aluno já está em uso." });
-      }
-      return res.status(409).json({ erro: "Registro duplicado detectado." });
+export const sanitizeNewFO = (authorId, targetId, description) => {
+    let res = {
+        isValid: false,
+        status: "The fields didn't pass the validation.",
+        authorId: null,
+        targetId: null,
+        description: ""
+    };
+
+    // 1. Check existence of fields
+    if (!authorId || !targetId || !description) {
+        res.status = "The authorId, targetId, and description fields are required.";
+        return res;
     }
 
-    console.error("Erro ao criar aluno:", error);
-    return res.status(500).json({ erro: "Erro interno ao salvar o aluno." });
-  }*/
-} 
+    // 2. Type validation and sanitization
+    const parsedAuthorId = Number(authorId);
+    const parsedTargetId = Number(targetId);
+    description = String(description).trim();
+
+    if (isNaN(parsedAuthorId) || parsedAuthorId <= 0 || isNaN(parsedTargetId) || parsedTargetId <= 0) {
+        res.status = "The authorId and targetId must be valid positive numbers.";
+        return res;
+    }
+
+    // 3. Check for empty description after trim
+    if (!description) {
+        res.status = "The description cannot have only blank spaces.";
+        return res;
+    }
+
+    res.isValid = true;
+    res.status = "The input is valid.";
+    res.authorId = parsedAuthorId;
+    res.targetId = parsedTargetId;
+    res.description = description;
+
+    return res;
+};
