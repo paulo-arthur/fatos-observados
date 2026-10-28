@@ -81,3 +81,54 @@ export const sanitizeNewFO = (authorId, targetId, description) => {
 
     return res;
 };
+
+export const sanitizeNewInstructor = (name, rank, email, password) => {
+    let res = {
+        isValid: false,
+        status: "The fields didn't pass the validation.",
+        name: "",
+        rank: "",
+        email: "",
+        password: ""
+    };
+
+    // 1. Check existence of fields
+    if (!name || !rank || !email || !password) {
+        res.status = "The name, rank, email, and password fields are required.";
+        return res;
+    }
+
+    // 2. Trim and normalize strings
+    name = name.trim();
+    rank = rank.trim();
+    email = email.trim().toLowerCase();
+    password = password.trim();
+
+    // 3. Check for empty values after trim
+    if (!name || !rank || !email || !password) {
+        res.status = "The fields cannot have only blank spaces.";
+        return res;
+    }
+
+    // 4. Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        res.status = "Invalid email format.";
+        return res;
+    }
+
+    // 5. Password length check
+    if (password.length < 6) {
+        res.status = "The password must be at least 6 characters long.";
+        return res;
+    }
+
+    res.isValid = true;
+    res.status = "The input is valid.";
+    res.name = name;
+    res.rank = rank;
+    res.email = email;
+    res.password = password;
+
+    return res;
+};
