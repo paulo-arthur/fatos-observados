@@ -1,5 +1,6 @@
 import { pool } from  "../db.js";
 import { sanitizeNewInstructor } from "../utils/sanitizers.js";
+import bcrypt from "bcrypt";
 
 export const listInstructors = async (req, res) => {
     try {
@@ -51,7 +52,7 @@ export const createNewInstructor = async (req, res) => {
                 testedFields.name, 
                 testedFields.rank, 
                 testedFields.email, 
-                testedFields.password
+                await bcrypt.hash(testedFields.password, 13)
             ];
 
             const result = await pool.query(query, values);
