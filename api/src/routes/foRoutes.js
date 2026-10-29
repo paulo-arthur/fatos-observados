@@ -1,14 +1,16 @@
 import { Router } from "express";
 import { listFOs, getFOById, getFOsOfStudent, createNewFO, judgeFO } from "../controllers/foController.js";
+import { requireCaptain } from "../middlewares/capMiddleware.js";
+import { validateJWT } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
-router.get("/", listFOs);
-router.get("/:id", getFOById);
-router.get("/student/:studentId", getFOsOfStudent);
+router.get("/", validateJWT, listFOs);
+router.get("/:id", validateJWT, getFOById);
+router.get("/student/:studentId", validateJWT, getFOsOfStudent);
 
-router.post("/", createNewFO);
+router.post("/", validateJWT, createNewFO);
 
-router.patch("/:id", judgeFO);
+router.patch("/:id", validateJWT, requireCaptain, judgeFO);
 
 export default router;
