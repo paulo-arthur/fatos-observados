@@ -2,7 +2,7 @@ import axios from 'axios';
 import { clearSession, readSession } from '../auth/session.js';
 
 export const api = axios.create({
-  baseURL: 'https://fatos-observados.onrender.com/',
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
 });
